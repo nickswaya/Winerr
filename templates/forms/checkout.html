@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .amount-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .amount-buttons button {
+            background-color: #5469d4;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .amount-buttons button:hover {
+            background-color: #4353b0;
+        }
+        #card-element {
+            margin-bottom: 20px;
+        }
+        #card-errors {
+            color: #fa755a;
+            margin-bottom: 20px;
+        }
+        #submit {
+            background-color: #5469d4;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        #submit:hover {
+            background-color: #4353b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Checkout</h1>
+        <div class="amount-buttons">
+            <button data-amount="1">Pay $1</button>
+            <button data-amount="5">Pay $5</button>
+            <button data-amount="10">Pay $10</button>
+            <button data-amount="50">Pay $50</button>
+            <button data-amount="100">Pay $100</button>
+        </div>
+        <form id="payment-form">
+            <div id="card-element">
+                <!-- A Stripe Element will be inserted here. -->
+            </div>
+            <!-- Used to display form errors. -->
+            <div id="card-errors" role="alert"></div>
+            <button id="submit">Pay $1.00</button>
+        </form>
+    </div>
+
+    <script>
+        var stripe = Stripe('{{ key }}'); // Your publishable key
+        var elements = stripe.elements();
+        var card = elements.create('card');
+        card.mount('#card-element');
+
+        var amount = 100; // Default amount ($1.00)
+
+        document.querySelectorAll('.amount-buttons button').forEach(function(button) {
+            button.addEventListener('click', function() {
+                amount = parseInt(button.getAttribute('data-amount')) * 100; // Convert to cents
+                document.getElementById('submit').textContent = 'Pay $' + (amount / 100).toFixed(2);
+            });
+        });
+
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                    // Display error.message in your UI.
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                    // Send the token and amount to your server.
+                    fetch('/charge', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            stripeToken: result.token.id,
+                            amount: amount
+                        })
+                    }).then(function(response) {
+                        return response.json();
+                    }).then(function(data) {
+                        if (data.success) {
+                            // Redirect to home page
+                            window.location.href = '/';
+                        } else {
+                            alert('Payment failed: ' + data.error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

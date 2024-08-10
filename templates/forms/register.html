@@ -10,7 +10,7 @@
             {% endfor %}
     {{ form.password(class_ = 'form-control', placeholder = form.password.label.text, required = true) }}
     {{ form.confirm(class_ = 'form-control last-input', placeholder = form.confirm.label.text, required = true) }}
-    <p class="pull-left"><a href="{{ url_for('login') }}">Login</a></p>
+    <!-- <p class="pull-left"><a href="{{ url_for('login') }}">Login</a></p> -->
     <input href="{{ url_for('login') }}" type="submit" value="Register" class="btn btn-primary btn-lg btn-block">
   </form>
 {% endblock %}

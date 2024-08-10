@@ -6,4 +6,21 @@
   <h1>Are you a Winner? Or a Loser?</h1>
 </div>
 <p class="lead">Compete amongst your friends to become THE WINNER</p>
+
+<table class="table">
+  <thead>
+      <tr>
+          <th>Username</th>
+          <th>Total G-Points</th>
+      </tr>
+  </thead>
+  <tbody>
+      {% for user, total_price in top_users %}
+      <tr>
+          <td>{{ user }}</td>
+          <td>${{ total_price }}</td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
