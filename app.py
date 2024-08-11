@@ -26,6 +26,7 @@ app.config.from_object('config')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['STRIPE_TEST_PUBLIC_KEY'] = os.getenv("STRIPE_TEST_PUBLIC_KEY")
 app.config['STRIPE_TEST_SECRET_KEY'] = os.getenv("STRIPE_TEST_SECRET_KEY")
+app.app_context().push()
 stripe.api_key = app.config['STRIPE_TEST_SECRET_KEY']
 
 db = SQLAlchemy(app)
@@ -264,20 +265,20 @@ def users():
 # Degrade.
 #----------------------------------------------------------------------------#
 
-def degrade_scores():
-    with app.context():
-        now = datetime.now()
-        users = User.query.all()
-        for user in users:
-            time_diff = now - user.last_updated
-            hours = time_diff.total_seconds() / 3600
-            degrade_amount = int(hours)  # $1 per hour, convert to cents
-            if degrade_amount > 0:
-                user.current_score = max(user.current_score - degrade_amount, 0)
-                user.last_updated = now
-                db.session.commit()
+# def degrade_scores():
+#     with app.context():
+#         now = datetime.now()
+#         users = User.query.all()
+#         for user in users:
+#             time_diff = now - user.last_updated
+#             hours = time_diff.total_seconds() / 3600
+#             degrade_amount = int(hours)  # $1 per hour, convert to cents
+#             if degrade_amount > 0:
+#                 user.current_score = max(user.current_score - degrade_amount, 0)
+#                 user.last_updated = now
+#                 db.session.commit()
 
-scheduler.add_job(degrade_scores, 'interval', hours=1)  # Run every hour
+# scheduler.add_job(degrade_scores, 'interval', hours=1)  # Run every hour
 
 
 #----------------------------------------------------------------------------#
