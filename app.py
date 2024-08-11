@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from flask_bcrypt import Bcrypt
 import stripe
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 from datetime import datetime, timedelta
 import pytz
@@ -32,8 +32,8 @@ stripe.api_key = app.config['STRIPE_TEST_SECRET_KEY']
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-scheduler = BackgroundScheduler()
-scheduler.start()
+# scheduler = BackgroundScheduler()
+# scheduler.start()
 
 # Automatically tear down SQLAlchemy.
 '''
